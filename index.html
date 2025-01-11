@@ -141,10 +141,10 @@
                             }
                             const destStation = data.data.stations.filter(x => x.station_id == stationIds[stationName])[0];
                             if (destStation.num_docks_available == 0) {
-                                speakText("Unfortunately, there are no docks available at " + stationName + ". There are ${southStation.num_bikes_available} bikes and ${southStation.num_ebikes_available} ebikes at South.");
+                                speakText(`Unfortunately, there are no docks available at " + stationName + ". There ${southStation.num_bikes_available == 1 ? 'is 1 bike' : 'are ' + (southStation.num_bikes_available || 'no') + ' bikes'} and ${southStation.num_ebikes_available == 1 ? '1 bike' : (southStation.num_ebikes_available || 'no') + ' bikes'} e-bikes at South.`);
                                 return;
                             }
-                            speakText(`There are ${southStation.num_bikes_available} bikes and ${southStation.num_ebikes_available} ebikes at South, and ${destStation.num_docks_available} free docks at ${stationName}.`);
+                            speakText(`There ${southStation.num_bikes_available == 1 ? 'is 1 bike' : 'are ' + (southStation.num_bikes_available || 'no') + ' bikes'} and ${southStation.num_ebikes_available == 1 ? '1 bike' : (southStation.num_ebikes_available || 'no') + ' bikes'} e-bikes at South, and ${destStation.num_docks_available} free ${destStation.num_docks_available == 1 ? 'dock' : 'docks'} at ${stationName}.`);
                         }).catch(error => {
                             console.log(error);
                             speakText("Unfortunately, I couldn't get that data.");
@@ -153,14 +153,14 @@
                     }
                 }
                 $.ajax({
-                            url: "https://gbfs.lyft.com/gbfs/2.3/chi/en/station_status.json"
+                    url: "https://gbfs.lyft.com/gbfs/2.3/chi/en/station_status.json"
                 }).done(data => {
                     const southStation = data.data.stations.filter(x => x.station_id == stationIds["south"])[0];
                     if (southStation.num_bikes_available == 0 && southStation.num_ebikes_available == 0) {
                         speakText("Unfortunately, there are no bikes available at South.");
                         return;
                     }
-                    speakText(`There are ${southStation.num_bikes_available} bikes and ${southStation.num_ebikes_available} ebikes at South.`);
+                    speakText(`There ${southStation.num_bikes_available == 1 ? 'is 1 bike' : 'are ' + (southStation.num_bikes_available || 'no') + ' bikes'} and ${southStation.num_ebikes_available == 1 ? '1 bike' : (southStation.num_ebikes_available || 'no') + ' bikes'} e-bikes at South.`);
                 }).catch(error => {
                     console.log(error);
                     speakText("Unfortunately, I couldn't get that data.");
