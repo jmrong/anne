@@ -596,6 +596,10 @@
                         changeColor(porcupineActivated ? "cornflowerblue" : "rgb(100, 100, 100)", false);
                     }
                 }
+                if (synth.speaking) {
+                    synth.pause();
+                    changeColor("cornflowerblue", false);
+                }
             }
         </script>
     </body>
