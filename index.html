@@ -152,12 +152,12 @@
                     if (now.getHours() > time[0] || (now.getHours() == time[0] && now.getMinutes() > time[1])) {
                         target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, time[0], time[1]);
                     } else {
-                        target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, time[0], time[1]);
+                        target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), time[0], time[1]);
                     }
                 }
                 const alarm = { target: target.getTime(), report: query.includes("bed"), timeout: null };
                 alarm.timeout = setTimeout(() => {
-                    soundAlarm(target.getTime());
+                    soundAlarm(target.getTime(), alarm.report);
                 }, target.getTime() - Date.now());
                 alarms.push(alarm);
                 function formatAMPM(date) {
@@ -181,9 +181,11 @@
             };
             if (localStorage.getItem("alarms")) {
                 alarms = JSON.parse(localStorage.getItem("alarms"));
+                alarms = alarms.filter(x => x.target > Date.now());
+                localStorage.setItem("alarms", JSON.stringify(alarms));
                 for (let alarm in alarms) {
                     setTimeout(() => {
-                        soundAlarm(alarm.target);
+                        soundAlarm(alarm.target, alarm.report);
                     }, alarm.target - Date.now());
                 }
             }
@@ -192,7 +194,7 @@
                 const stationIds = {
                     "south": "a3ad8fd9-a135-11e9-9cda-0a87ae2ba916",
                     "regenstein": "a3ad8072-a135-11e9-9cda-0a87ae2ba916",
-                    "bookstore": "a3aabfe3-a135-11e9-9cda-0a87ae2ba916",
+                    "the bookstore": "a3aabfe3-a135-11e9-9cda-0a87ae2ba916",
                     "booth": "1850867138125484782",
                     "cottage grove": "a3ad95a7-a135-11e9-9cda-0a87ae2ba916",
                     "53rd": "a3aaa17b-a135-11e9-9cda-0a87ae2ba916",
@@ -211,10 +213,10 @@
                             }
                             const destStation = data.data.stations.filter(x => x.station_id == stationIds[stationName])[0];
                             if (destStation.num_docks_available == 0) {
-                                speakText(`Unfortunately, there are no docks available at " + stationName + ". There ${southStation.num_bikes_available == 1 ? 'is 1 bike' : 'are ' + (southStation.num_bikes_available || 'no') + ' bikes'} and ${southStation.num_ebikes_available == 1 ? '1 bike' : (southStation.num_ebikes_available || 'no') + ' bikes'} e-bikes at South.`);
+                                speakText(`Unfortunately, there are no docks available at " + stationName + ". There ${southStation.num_bikes_available == 1 ? 'is 1 bike' : 'are ' + (southStation.num_bikes_available || 'no') + ' bikes'} and ${southStation.num_ebikes_available == 1 ? '1 e-bike' : (southStation.num_ebikes_available || 'no') + ' e-bikes'} at South.`);
                                 return;
                             }
-                            speakText(`There ${southStation.num_bikes_available == 1 ? 'is 1 bike' : 'are ' + (southStation.num_bikes_available || 'no') + ' bikes'} and ${southStation.num_ebikes_available == 1 ? '1 bike' : (southStation.num_ebikes_available || 'no') + ' bikes'} e-bikes at South, and ${destStation.num_docks_available} free ${destStation.num_docks_available == 1 ? 'dock' : 'docks'} at ${stationName}.`);
+                            speakText(`There ${southStation.num_bikes_available == 1 ? 'is 1 bike' : 'are ' + (southStation.num_bikes_available || 'no') + ' bikes'} and ${southStation.num_ebikes_available == 1 ? '1 e-bike' : (southStation.num_ebikes_available || 'no') + ' e-bikes'} at South, and ${destStation.num_docks_available} free ${destStation.num_docks_available == 1 ? 'dock' : 'docks'} at ${stationName}.`);
                         }).catch(error => {
                             console.log(error);
                             speakText("Unfortunately, I couldn't get that data.");
@@ -230,14 +232,14 @@
                         speakText("Unfortunately, there are no bikes available at South.");
                         return;
                     }
-                    speakText(`There ${southStation.num_bikes_available == 1 ? 'is 1 bike' : 'are ' + (southStation.num_bikes_available || 'no') + ' bikes'} and ${southStation.num_ebikes_available == 1 ? '1 bike' : (southStation.num_ebikes_available || 'no') + ' bikes'} e-bikes at South.`);
+                    speakText(`There ${southStation.num_bikes_available == 1 ? 'is 1 bike' : 'are ' + (southStation.num_bikes_available || 'no') + ' bikes'} and ${southStation.num_ebikes_available == 1 ? '1 e-bike' : (southStation.num_ebikes_available || 'no') + ' e-bikes'} at South.`);
                 }).catch(error => {
                     console.log(error);
                     speakText("Unfortunately, I couldn't get that data.");
                 });
             }
 
-            function soundAlarm(time) {
+            function soundAlarm(time, report) {
                 alarms = alarms.filter(x => x.target != time);
                 localStorage.setItem("alarms", JSON.stringify(alarms));
                 if (state != "alarm") {
