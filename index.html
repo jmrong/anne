@@ -156,6 +156,7 @@
                     alarms = [];
                     localStorage.setItem("alarms", "[]");
                     speakText("Got it, I've canceled your alarms.");
+                    return;
                 }
                 breakdown = query.split(" ");
                 let target;
