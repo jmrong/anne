@@ -132,8 +132,56 @@
                     const arrivals = [];
                     $(data).find("eta").each(function() {
                         const arrT = $(this).find("arrT").text();
-                        const arrDate = new Date(Number(arrT.substring(0, 4)), Number(arrT.substring(4, 6), ));
+                        const arrDate = new Date(Number(arrT.substring(0, 4)), Number(arrT.substring(4, 6)), Number(arrT.substring(6, 8)), Number(arrT.substring(9, 11)), Number(arrT.substring(11, 13)), Number(arrT.substring(13, 15)));
+                        arrivals.push({ arrDate: arrDate, sched: $(this).find("isSch").text() == "1" });
                     });
+                    let output = [];
+                    const now = new Date();
+                    if (arrivals.length > 0) {
+                        const minDiff = Math.round((((arrivals[0].arrDate - now) % 86400000) % 3600000) / 60000);
+                        let arrDesc = "";
+                        if (minDiff == 0) {
+                            arrDesc = "now"
+                        } else if (minDiff == 1) {
+                            arrDesc = "in 1 minute"
+                        } else {
+                            arrDesc = "in " + minDiff + " minutes";
+                        }
+                        output.push(`The ${service} is ${arrivals[0].sched ? 'scheduled to arrive' : 'arrive'} ${arrDesc}.`);
+                    }
+                    if (arrivals.length == 2) {
+                        const minDiff = Math.round((((arrivals[1].arrDate - now) % 86400000) % 3600000) / 60000);
+                        let arrDesc = "";
+                        if (minDiff == 0) {
+                            arrDesc = "now"
+                        } else if (minDiff == 1) {
+                            arrDesc = "in 1 minute"
+                        } else {
+                            arrDesc = "in " + minDiff + " minutes";
+                        }
+                        output.push(`Another train is ${arrivals[1].sched ? 'scheduled to arrive' : 'arrive'} ${arrDesc}.`);
+                    } else {
+                        const minDiff2 = Math.round((((arrivals[1].arrDate - now) % 86400000) % 3600000) / 60000);
+                        let arrDesc2 = "";
+                        if (minDiff2 == 0) {
+                            arrDesc2 = "now"
+                        } else if (minDiff2 == 1) {
+                            arrDesc2 = "in 1 minute"
+                        } else {
+                            arrDesc2 = "in " + minDiff + " minutes";
+                        }
+                        const minDiff3 = Math.round((((arrivals[2].arrDate - now) % 86400000) % 3600000) / 60000);
+                        let arrDesc3 = "";
+                        if (minDiff3 == 0) {
+                            arrDesc3 = "now"
+                        } else if (minDif3 == 1) {
+                            arrDesc3 = "in 1 minute"
+                        } else {
+                            arrDesc3 = "in " + minDiff + " minutes";
+                        }
+                        output.push(`More trains are arriving ${arrDesc2} and ${arrDesc3}.`);
+                    }
+                    speakText(output.join(" "));
                 });
             }
 
@@ -196,10 +244,10 @@
                         const categories = data.menu.periods.categories;
                         categories.forEach(category => {
                             if (stations[location].includes(category.name)) {
-                                output.append(`The ${category.name} station has ${category.items.slice(0, 4).map((item, i) => i == category.items.length - 1 ? 'and ' + item.name : item.name).join(', ')}.`);
+                                output.push(`The ${category.name} station has ${category.items.slice(0, 4).map((item, i) => i == category.items.length - 1 ? 'and ' + item.name : item.name).join(', ')}.`);
                             }
                         });
-                        speakText(output);
+                        speakText(output.join(" "));
                     } catch (error) {
                         console.log(error);
                         speakText(`Unfortunately, I was unable to get the menu for ${period} at ${location}.`);
