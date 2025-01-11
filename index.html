@@ -116,6 +116,10 @@
                 "alarm": {
                     hotwords: ["timer", "alarm", "wake", "bed"],
                     action: setAlarm
+                },
+                "contacts": {
+                    hotwords: ["contacts"],
+                    action: checkContacts
                 }
             }
 
@@ -127,6 +131,21 @@
 
             function cancel() {
                 changeColor("cornflowerblue", true);
+            }
+
+            function checkContacts(query) {
+                if (query.includes("when") || query.includes("do")) {
+                    const prevDate = localStorage.getItem("contacts");
+                    if (prevDate) {
+                        speakText(`You last changed your contacts ${(Math.floor((Date.now() - (new Date(Number(prevData))).getTime()) / 86400000))} ${(Math.floor((Date.now() - (new Date(Number(prevData))).getTime()) / 86400000)) == 1 ? 'day' : 'days'} ago.`);
+                    } else {
+                        cancel();
+                        return;
+                    }
+                } else {
+                    localStorage.setItem("contacts", JSON.stringify(Date.now()));
+                    speakText("OK, I'll remember that!");
+                }
             }
 
             function setAlarm(query) {
@@ -152,7 +171,12 @@
                     }
                     target = new Date(Date.now() + (hour / 60 / 60 / 1000) + (minute / 60 / 1000));
                 } else if (query.includes("alarm") || query.includes("wake")) {
-                    let time = breakdown[breakdown.indexOf(query.includes("a.m.") ? "a.m." : "p.m.") - 1].split(":").map(x => Number(x));
+                    try {
+                        let time = breakdown[breakdown.indexOf(query.includes("a.m.") ? "a.m." : "p.m.") - 1].split(":").map(x => Number(x));
+                    } catch (error) {
+                        cancel();
+                        return;
+                    }
                     if (time[0] == 12) {
                         time[0] = 0;
                     }
