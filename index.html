@@ -130,6 +130,13 @@
             }
 
             function setAlarm(query) {
+                if (query.includes("cancel")) {
+                    for (let alarm in alarms) {
+                        cancelTimeout(alarms[alarm].timeout);
+                    }
+                    alarms = [];
+                    localStorage.setItem("alarms", "[]");
+                }
                 breakdown = query.split(" ");
                 let target;
                 if (query.includes("hour") || query.includes("minute")) {
@@ -192,8 +199,8 @@
                 localStorage.setItem("alarms", JSON.stringify(alarms));
                 for (let alarm in alarms) {
                     setTimeout(() => {
-                        soundAlarm(alarm.target, alarm.report);
-                    }, alarm.target - Date.now());
+                        soundAlarm(alarms[alarm].target, alarms[alarm].report);
+                    }, alarms[alarm].target - Date.now());
                 }
             }
 
@@ -279,9 +286,9 @@
                     url: "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Hyde_Park,_IL/next10days?unitGroup=metric&iconSet=icons2&key=KSFBRZP7W6LGZFHHCHTP9DZL8"
                 }).done(data => {
                     function parseTemp(input) {
-                        return input < 0 ? 'negative ' + (input * -1).toString() : input;
+                        return input < 0 ? 'negative ' + Math.round(input * -1).toString() : Math.round(input).toString();
                     }
-                    speakText(`Good morning, Jack. It is ${parseTemp(data.days[0].temp)} degrees right now. The low is ${parseTemp(data.days[0].tempmin)} and the high is ${parseTemp(data.days[0].tempmax)}. It feels like ${parseTemp(data.days[0].feelslike)}. ${data.days[0].description.slice(-1)}, with a ${data.days[0].precipprop} percent chance of rain.`);
+                    speakText(`Good morning, Jack. It is ${parseTemp(data.days[0].temp)} degrees right now. The low is ${parseTemp(data.days[0].tempmin)} and the high is ${parseTemp(data.days[0].tempmax)}. It feels like ${parseTemp(data.days[0].feelslike)}. ${data.days[0].description.slice(-1)}, with a ${data.days[0].precipprob} percent chance of rain.`, 0.9);
                 });
             }
 
