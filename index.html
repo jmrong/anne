@@ -147,7 +147,7 @@
                         } else {
                             arrDesc = "in " + minDiff + " minutes";
                         }
-                        output.push(`The ${service} is ${arrivals[0].sched ? 'scheduled to arrive' : 'arrive'} ${arrDesc}.`);
+                        output.push(`The ${service} is ${arrivals[0].sched ? 'scheduled to depart' : 'departing'} ${arrDesc}.`);
                     }
                     if (arrivals.length == 2) {
                         const minDiff = Math.round((((arrivals[1].arrDate - now) % 86400000) % 3600000) / 60000);
@@ -159,7 +159,7 @@
                         } else {
                             arrDesc = "in " + minDiff + " minutes";
                         }
-                        output.push(`Another train is ${arrivals[1].sched ? 'scheduled to arrive' : 'arrive'} ${arrDesc}.`);
+                        output.push(`Another train is ${arrivals[1].sched ? 'scheduled to depart' : 'departing'} ${arrDesc}.`);
                     } else {
                         const minDiff2 = Math.round((((arrivals[1].arrDate - now) % 86400000) % 3600000) / 60000);
                         let arrDesc2 = "";
@@ -179,7 +179,7 @@
                         } else {
                             arrDesc3 = "in " + minDiff + " minutes";
                         }
-                        output.push(`More trains are arriving ${arrDesc2} and ${arrDesc3}.`);
+                        output.push(`More trains are departing ${arrDesc2} and ${arrDesc3}.`);
                     }
                     speakText(output.join(" "));
                 });
