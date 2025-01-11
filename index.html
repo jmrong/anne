@@ -30,7 +30,7 @@
         <script>
             function changeColor(color, fade) {
                 if (fade) {
-                    $("#big").css("transition", "background-color 0.5s");
+                    $("#big").css("transition", "background-color 0.75s");
                 } else {
                     $("#big").css("transition", "");
                 }
@@ -81,15 +81,13 @@
             const synth = window.speechSynthesis;
             function speakText(text) {
                 const utterThis = new SpeechSynthesisUtterance(text);
-                utterThis.rate = 1.4;
+                utterThis.rate = 1.2;
                 utterThis.addEventListener("end", () => {
                     setTimeout(() => {
                         changeColor("cornflowerblue", true);
                     }, 200);
                 });
-                setTimeout(() => {
-                    synth.speak(utterThis);
-                }, 200);
+                synth.speak(utterThis);
             }
 
             const actions = {
@@ -98,27 +96,77 @@
                     action: sayHi
                 },
                 "menu": {
-                    hotwords: ["menu", "dinner", "lunch", "kathy", "bartlett"],
+                    hotwords: ["menu", "dinner", "lunch", "kathy", "bartlett", "woodlawn", "baker"],
                     action: foodMenu
+                },
+                "cta_train": {
+                    hotwords: ["red line", "green line", "cottage grove", "garfield"],
+                    action: ctaTrain
                 }
             }
 
             function sayHi() {
-                speakText("Hello, Grace!");
+                setTimeout(() => {
+                    speakText("Hello, Grace!");
+                }, 200);
             }
+
+            function ctaTrain(query) {
+                // const trainKey = localStorage.getItem("trainKey");
+                // let stpid = "", service = "";
+                // if (query.includes("red")) {
+                //     stpid = "30223";
+                //     service = "Garfield Red Line towards Howard";
+                // } else if (query.inclues("green") && query.includes("garfield")) {
+                //     stpid = "30099";
+                //     service = "Garfield Green Line towards Harlem";
+                // } else if (query.includes("green")) {
+                //     stpid = "30140";
+                //     service = "Cottage Grove Green Line towards Harlem";
+                // } else {
+                //     return;
+                // }
+                // $.ajax({
+                //     url: `https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=${trainKey}&stpid=${stpid}`
+                // }).done(data => {
+                //     const arrivals = [];
+                //     $(data).find("eta").each(function() {
+                //         const arrT = $(this).find("arrT").text();
+                //         const arrDate = new Date(arrT.substring(0, 4),);
+                //     });
+                // });
+            }
+
             function foodMenu(query) {
                 const today = new Date();
                 const locations = {
                     "kathy": "618a6efbb63f1e2d444389c1",
-                    "woodlawn": "618a6df9b63f1e2d692b1f5c"
+                    "woodlawn": "618a6df9b63f1e2d692b1f5c",
+                    "bartlett": "618a6f95b63f1e2d3b454065",
+                    "baker": "618a6caab63f1e2d4442bdf5"
                 }
                 const mealPeriods = {
                     "kathy": {
-                        "dinner": "6761d823c625af07f6c1efd2"
+                        "dinner": "6761d823c625af07f6c1efd2",
+                        "lunch": "6761d823c625af07f6c1efb6"
                     },
                     "woodlawn": {
-                        "dinner": "65098cc9e45d430aa3542a3a"
+                        "dinner": "65098cc9e45d430aa3542a3a",
+                        "lunch": "65098cc9e45d430aa3542a18"
+                    },
+                    "bartlett": {
+                        "dinner": "677abc04351d53055638c7b5",
+                        "lunch": "677abc04351d53055638c78c"
+                    },
+                    "baker": {
+                        "dinner": "677a9ed5e45d4305ef20f265",
+                        "lunch": "677a9ed5e45d4305ef20f277"
                     }
+                }
+                const stations = {
+                    "kathy": ["Kitchen", "Rooted Entrees and Sides", "Halal", "Kosher"],
+                    "woodlawn": ["Kitchen", "Rooted Entrees and Sides", "Pure Eats Entrée and Sides", "Kosher Entrees", "Halal", "Crave Global"],
+                    "baker": ["Kitchen", "Kitchen Special", "Rooted", "Pure Eats Entrée and Sides", "Kosher", "Halal"]
                 }
                 let location = "";
                 if (query.includes("kathy")) {
@@ -140,9 +188,22 @@
                 };
                 $.ajax({
                     url: `https://api.dineoncampus.com/v1/location/${locations[location]}/periods/${mealPeriods[location][period]}?platform=0&date=${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
-                }).done(function(data) {
-                    speakText(`For ${period}, we have ${data.menu.periods.categories[0].items[0].name}`);
-                });
+                }).done(data => {
+                    try {
+                        const output = [`Here is the menu for ${period} at ${location}.`];
+                        const categories = data.menu.periods.categories;
+                        categories.forEach(category => {
+                            if (stations[location].includes(category.name)) {
+                                output.append(`The ${category.name} station has ${category.items.slice(0, 4).map((item, i) => i == category.items.length - 1 ? 'and ' + item.name : item.name).join(', ')}.`);
+                            }
+                        });
+                        speakText(output);
+                    } catch (error) {
+                        speakText(`Unfortunately, I was unable to get the menu for ${period} at ${location}.`);
+                    }
+                }).catch(() => {
+                    speakText(`Unfortunately, I was unable to get the menu for ${period} at ${location}.`);
+                })
             }
 
             let prevAction = { actionType: null, actionData: null };
