@@ -102,6 +102,10 @@
                 "cta_train": {
                     hotwords: ["red line", "green line", "cottage grove", "garfield"],
                     action: ctaTrain
+                },
+                "cta_bus": {
+                    hotwords: ["eastbound", "westbound", "59"],
+                    action: ctaBus
                 }
             }
 
@@ -109,6 +113,80 @@
                 setTimeout(() => {
                     speakText("Hello, Grace!");
                 }, 200);
+            }
+
+            function ctaBus(query) {
+                const busKey = localStorage.getItem("busKey");
+                let stpid = "", rt = "", service = "";
+                if (query.includes("59") && query.includes("east")) {
+                    stpid = "13014";
+                    rt = "59";
+                    service = "eastbound 59";
+                } else if (query.includes("59") && query.includes("west")) {
+                    stpid = "13030";
+                    rt = "59";
+                    service = "westbound 59";
+                }
+                $.ajax({
+                    url: `https://www.ctabustracker.com/bustime/api/v2/getpredictions?key=${busKey}&rt=${rt}&stpid=${stpid}`
+                }).done(data => {
+                    const arrivals = [];
+                    $(data).find("prd").each(function() {
+                        const arrT = $(this).find("prdtm").text();
+                        const arrDate = new Date(Number(arrT.substring(0, 4)), Number(arrT.substring(4, 6)), Number(arrT.substring(6, 8)), Number(arrT.substring(9, 11)), Number(arrT.substring(12, 14)));
+                        arrivals.push({ arrDate: arrDate });
+                    });
+                    let output = [];
+                    const now = new Date();
+                    if (arrivals.length > 0) {
+                        const minDiff = Math.round((((arrivals[0].arrDate - now) % 86400000) % 3600000) / 60000);
+                        let arrDesc = "";
+                        if (minDiff == 0) {
+                            arrDesc = "now"
+                        } else if (minDiff == 1) {
+                            arrDesc = "in 1 minute"
+                        } else {
+                            arrDesc = "in " + minDiff + " minutes";
+                        }
+                        output.push(`The ${service} is arriving ${arrDesc}.`);
+                    }
+                    if (arrivals.length == 2) {
+                        const minDiff = Math.round((((arrivals[1].arrDate - now) % 86400000) % 3600000) / 60000);
+                        let arrDesc = "";
+                        if (minDiff == 0) {
+                            arrDesc = "now"
+                        } else if (minDiff == 1) {
+                            arrDesc = "in 1 minute"
+                        } else {
+                            arrDesc = "in " + minDiff + " minutes";
+                        }
+                        output.push(`Another bus is arriving ${arrDesc}.`);
+                    } else {
+                        const minDiff2 = Math.round((((arrivals[1].arrDate - now) % 86400000) % 3600000) / 60000);
+                        let arrDesc2 = "";
+                        if (minDiff2 == 0) {
+                            arrDesc2 = "now"
+                        } else if (minDiff2 == 1) {
+                            arrDesc2 = "in 1 minute"
+                        } else {
+                            arrDesc2 = "in " + minDiff + " minutes";
+                        }
+                        const minDiff3 = Math.round((((arrivals[2].arrDate - now) % 86400000) % 3600000) / 60000);
+                        let arrDesc3 = "";
+                        if (minDiff3 == 0) {
+                            arrDesc3 = "now"
+                        } else if (minDif3 == 1) {
+                            arrDesc3 = "in 1 minute"
+                        } else {
+                            arrDesc3 = "in " + minDiff + " minutes";
+                        }
+                        output.push(`More buses are arriving ${arrDesc2} and ${arrDesc3}.`);
+                    }
+                    speakText(output.join(" "));
+                }).catch(error => {
+                    console.log(error);
+                    speakText("Unfortunately, I couldn't get that data.");
+                });
             }
 
             function ctaTrain(query) {
@@ -182,6 +260,9 @@
                         output.push(`More trains are departing ${arrDesc2} and ${arrDesc3}.`);
                     }
                     speakText(output.join(" "));
+                }).catch(error => {
+                    console.log(error);
+                    speakText("Unfortunately, I couldn't get that data.");
                 });
             }
 
@@ -273,6 +354,7 @@
                         }
                     }
                 }
+                changeColor("cornflowerblue", true);
             }
 
             let state = "inactive";
