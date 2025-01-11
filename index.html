@@ -222,11 +222,11 @@
                 alarms = JSON.parse(localStorage.getItem("alarms"));
                 alarms = alarms.filter(x => x.target > Date.now());
                 localStorage.setItem("alarms", JSON.stringify(alarms));
-                for (let alarm in alarms) {
-                    setTimeout(() => {
-                        soundAlarm(alarms[alarm].target, alarms[alarm].report);
-                    }, alarms[alarm].target - Date.now());
-                }
+                alarms.forEach((alarm, i) => {
+                    alarms[i].timeout = setTimeout(() => {
+                        soundAlarm(alarm.target, alarm.report);
+                    }, alarm.target - Date.now());
+                });
             }
 
             function checkBikes(query) {
