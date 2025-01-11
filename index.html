@@ -106,6 +106,10 @@
                 "cta_bus": {
                     hotwords: ["eastbound", "westbound", "59", "171", "172"],
                     action: ctaBus
+                },
+                "divvy": {
+                    hotwords: ["bike"],
+                    action: checkBikes
                 }
             }
 
@@ -113,6 +117,54 @@
                 setTimeout(() => {
                     speakText("Hello, Grace!");
                 }, 200);
+            }
+
+            function checkBikes(query) {
+                const stationIds = {
+                    "south": "a3ad8fd9-a135-11e9-9cda-0a87ae2ba916",
+                    "regenstein": "a3ad8072-a135-11e9-9cda-0a87ae2ba916",
+                    "bookstore": "a3aabfe3-a135-11e9-9cda-0a87ae2ba916",
+                    "booth": "1850867138125484782",
+                    "cottage grove": "a3ad95a7-a135-11e9-9cda-0a87ae2ba916",
+                    "53rd": "a3aaa17b-a135-11e9-9cda-0a87ae2ba916",
+                    "55th": "a3a89488-a135-11e9-9cda-0a87ae2ba916"
+                }
+                for (let stationName in stationIds) {
+                    if (query.includes(stationName)) {
+                        $.ajax({
+                            url: "https://gbfs.lyft.com/gbfs/2.3/chi/en/station_status.json"
+                        }).done(data => {
+                            const southStation = data.data.stations.filter(x => x.station_id == stationIds["south"])[0];
+                            if (southStation.num_bikes_available == 0 && southStation.num_ebikes_available == 0) {
+                                speakText("Unfortunately, there are no bikes available at South.");
+                                return;
+                            }
+                            const destStation = data.data.stations.filter(x => x.station_id == stationIds[stationName])[0];
+                            if (destStation.num_docks_available == 0) {
+                                speakText("Unfortunately, there are no docks available at " + stationName + ". There are ${southStation.num_bikes_available} bikes and ${southStation.num_ebikes_available} ebikes at South.");
+                                return;
+                            }
+                            speakText(`There are ${southStation.num_bikes_available} bikes and ${southStation.num_ebikes_available} ebikes at South, and ${destStation.num_docks_available} free docks at ${stationName}.`);
+                        }).catch(error => {
+                            console.log(error);
+                            speakText("Unfortunately, I couldn't get that data.");
+                        });
+                        return;
+                    }
+                }
+                $.ajax({
+                            url: "https://gbfs.lyft.com/gbfs/2.3/chi/en/station_status.json"
+                }).done(data => {
+                    const southStation = data.data.stations.filter(x => x.station_id == stationIds["south"])[0];
+                    if (southStation.num_bikes_available == 0 && southStation.num_ebikes_available == 0) {
+                        speakText("Unfortunately, there are no bikes available at South.");
+                        return;
+                    }
+                    speakText(`There are ${southStation.num_bikes_available} bikes and ${southStation.num_ebikes_available} ebikes at South.`);
+                }).catch(error => {
+                    console.log(error);
+                    speakText("Unfortunately, I couldn't get that data.");
+                });
             }
 
             let alarms = [];
