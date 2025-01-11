@@ -137,7 +137,7 @@
                 if (query.includes("when") || query.includes("do")) {
                     const prevDate = localStorage.getItem("contacts");
                     if (prevDate) {
-                        speakText(`You last changed your contacts ${(Math.floor((Date.now() - (new Date(Number(prevData))).getTime()) / 86400000))} ${(Math.floor((Date.now() - (new Date(Number(prevData))).getTime()) / 86400000)) == 1 ? 'day' : 'days'} ago.`);
+                        speakText(`You last changed your contacts ${(Math.floor((Date.now() - (new Date(Number(prevDate))).getTime()) / 86400000))} ${(Math.floor((Date.now() - (new Date(Number(prevDate))).getTime()) / 86400000)) == 1 ? 'day' : 'days'} ago.`);
                     } else {
                         cancel();
                         return;
