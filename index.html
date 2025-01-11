@@ -79,9 +79,9 @@
             }
 
             const synth = window.speechSynthesis;
-            function speakText(text) {
+            function speakText(text, rate=1) {
                 const utterThis = new SpeechSynthesisUtterance(text);
-                utterThis.rate = 1;
+                utterThis.rate = rate;
                 utterThis.addEventListener("end", () => {
                     setTimeout(() => {
                         changeColor("cornflowerblue", true);
@@ -161,7 +161,7 @@
                             arrDesc = "in " + minDiff + " minutes";
                         }
                         output.push(`Another bus is arriving ${arrDesc}.`);
-                    } else {
+                    } else if (arrivals.length == 3) {
                         const minDiff2 = Math.round((((arrivals[1].arrDate - now) % 86400000) % 3600000) / 60000);
                         let arrDesc2 = "";
                         if (minDiff2 == 0) {
@@ -181,6 +181,8 @@
                             arrDesc3 = "in " + minDiff + " minutes";
                         }
                         output.push(`More buses are arriving ${arrDesc2} and ${arrDesc3}.`);
+                    } else {
+                        output.push(`Unfortunately, there are no arrival times for the ${service} right now.`);
                     }
                     speakText(output.join(" "));
                 }).catch(error => {
@@ -332,7 +334,7 @@
                                 output.push(`The ${category.name} station has ${category.items.slice(0, 4).map((item, i) => i == Math.min(category.items.length - 1, 3) ? 'and ' + item.name : item.name).join(', ')}.`);
                             }
                         });
-                        speakText(output.join(" "));
+                        speakText(output.join(" "), 1.2);
                     } catch (error) {
                         console.log(error);
                         speakText(`Unfortunately, I was unable to get the menu for ${period} at ${location}.`);
