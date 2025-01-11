@@ -12,12 +12,15 @@
             #big {
                 height: 100vh;
                 width: 100vw;
-                background-color: cornflowerblue;
+                background-color: rgb(100, 100, 100);
+            }
+            #big:active {
+                filter: brightness(90%);
             }
         </style>
     </head>
     <body>
-        <div id = "big"></div>
+        <div id = "big" onclick = "handleClick()"></div>
         <script
   src="https://code.jquery.com/jquery-3.7.1.js"
   integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
@@ -25,8 +28,12 @@
         <script src="@picovoice/web-voice-processor/dist/iife/index.js"></script>
         <script src="@picovoice/porcupine-web/dist/iife/index.js"></script>
         <script>
+            function changeColor(color, fade) {
+                $("#big").css("background-color", color);
+            }
+
             const apiKey = localStorage.getItem("apiKey");
-            (async () => {
+            async function startPorcupine() {
                 const keywordModel = {
                     publicPath: "Hey-there-Anne_en_wasm_v3_0_0.ppn",
                     label: "hey_there_anne",
@@ -37,16 +44,22 @@
                 }
 
                 const porcupine = await PorcupineWeb.PorcupineWorker.create(
-                apiKey,
-                [keywordModel],
-                keywordDetectionCallback,
-                {
-                    publicPath: "porcupine_params.pv"
-                }
+                    apiKey,
+                    [keywordModel],
+                    keywordDetectionCallback,
+                    {
+                        publicPath: "porcupine_params.pv"
+                    }
                 );
 
                 await window.WebVoiceProcessor.WebVoiceProcessor.subscribe(porcupine);
-            })();
+
+                changeColor("cornflowerblue", false);
+            }
+            let state = "inactive";
+            function handleClick() {
+                startPorcupine();
+            }
         </script>
     </body>
 </html>
