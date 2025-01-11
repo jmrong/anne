@@ -73,7 +73,7 @@
                 recognition.onresult = (event) => { 
                     for (const result of event.results) {
                         console.log(`${result[0].transcript}`);
-                        processQuery(result[0].transcript);
+                        processQuery(result[0].transcript.toLowerCase());
                     }
                 }
             }
@@ -81,14 +81,80 @@
             const synth = window.speechSynthesis;
             function speakText(text) {
                 const utterThis = new SpeechSynthesisUtterance(text);
+                utterThis.rate = 1.4;
                 utterThis.addEventListener("end", () => {
-                    changeColor("cornflowerblue", true);
+                    setTimeout(() => {
+                        changeColor("cornflowerblue", true);
+                    }, 200);
                 });
-                synth.speak(utterThis);
+                setTimeout(() => {
+                    synth.speak(utterThis);
+                }, 200);
             }
+
+            const actions = {
+                "girlfriend_hi": {
+                    hotwords: ["girlfriend"],
+                    action: sayHi
+                },
+                "menu": {
+                    hotwords: ["menu", "dinner", "lunch", "kathy", "bartlett"],
+                    action: foodMenu
+                }
+            }
+
+            function sayHi() {
+                speakText("Hello, Grace!");
+            }
+            function foodMenu(query) {
+                const today = new Date();
+                const locations = {
+                    "kathy": "618a6efbb63f1e2d444389c1",
+                    "woodlawn": "618a6df9b63f1e2d692b1f5c"
+                }
+                const mealPeriods = {
+                    "kathy": {
+                        "dinner": "6761d823c625af07f6c1efd2"
+                    },
+                    "woodlawn": {
+                        "dinner": "65098cc9e45d430aa3542a3a"
+                    }
+                }
+                let location = "";
+                if (query.includes("kathy")) {
+                    location = "kathy";
+                } else if (query.includes("woodlawn")) {
+                    location = "woodlawn";
+                } else if (prevAction.actionType == "menu") {
+                    period = prevAction.actionData.location;
+                }
+                let period = "";
+                if (query.includes("dinner")) {
+                    period = "dinner";
+                } else if (prevAction.actionType == "menu") {
+                    period = prevAction.actionData.period;
+                }
+                prevAction.actionData = {
+                    "location": location,
+                    "period": period
+                };
+                $.ajax({
+                    url: `https://api.dineoncampus.com/v1/location/${locations[location]}/periods/${mealPeriods[location][period]}?platform=0&date=${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
+                }).done(function(data) {
+                    speakText(`For ${period}, we have ${data.menu.periods.categories[0].items[0].name}`);
+                });
+            }
+
+            let prevAction = { actionType: null, actionData: null };
             function processQuery(result) {
-                if (result.indexOf("hi") != -1 && result.indexOf("girlfriend") != -1) {
-                    speakText("Hello, Grace!");
+                for (let action in actions) {
+                    for (let hotword of actions[action].hotwords) {
+                        if (result.includes(hotword)) {
+                            prevAction.actionType = action;
+                            actions[action].action(result);
+                            return;
+                        }
+                    }
                 }
             }
 
