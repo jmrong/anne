@@ -125,10 +125,14 @@
                 }, 200);
             }
 
+            function cancel() {
+                changeColor("cornflowerblue", true);
+            }
+
             function setAlarm(query) {
                 breakdown = query.split(" ");
                 let target;
-                if (query.includes("timer")) {
+                if (query.includes("hour") || query.includes("minute")) {
                     let hour = 0, minute = 0;
                     if (query.includes("hour")) {
                         hour = 1;
@@ -154,6 +158,9 @@
                     } else {
                         target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), time[0], time[1]);
                     }
+                } else {
+                    cancel();
+                    return;
                 }
                 const alarm = { target: target.getTime(), report: query.includes("bed"), timeout: null };
                 alarm.timeout = setTimeout(() => {
@@ -239,9 +246,13 @@
                 });
             }
 
+            let playReport = false;
             function soundAlarm(time, report) {
                 alarms = alarms.filter(x => x.target != time);
                 localStorage.setItem("alarms", JSON.stringify(alarms));
+                if (report) {
+                    playReport = true;
+                }
                 if (state != "alarm") {
                     state = "alarm";
                     changeColor("darkred", false);
@@ -263,6 +274,17 @@
                 }
             }
 
+            function morningReport() {
+                $.ajax({
+                    url: "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Hyde_Park,_IL/next10days?unitGroup=metric&iconSet=icons2&key=KSFBRZP7W6LGZFHHCHTP9DZL8"
+                }).done(data => {
+                    function parseTemp(input) {
+                        return input < 0 ? 'negative ' + (input * -1).toString() : input;
+                    }
+                    speakText(`Good morning, Jack. It is ${parseTemp(data.days[0].temp)} degrees right now. The low is ${parseTemp(data.days[0].tempmin)} and the high is ${parseTemp(data.days[0].tempmax)}. It feels like ${parseTemp(data.days[0].feelslike)}. ${data.days[0].description.slice(-1)}, with a ${data.days[0].precipprop} percent chance of rain.`);
+                });
+            }
+
             function ctaBus(query) {
                 const busKey = localStorage.getItem("busKey");
                 let stpid = "", rt = "", service = "";
@@ -282,6 +304,9 @@
                     stpid = "14020";
                     rt = "172";
                     service = "172";
+                } else {
+                    cancel();
+                    return;
                 }
                 $.ajax({
                     url: `https://www.ctabustracker.com/bustime/api/v2/getpredictions?key=${busKey}&rt=${rt}&stpid=${stpid}`
@@ -360,6 +385,7 @@
                     stpid = "30140";
                     service = "Cottage Grove Green Line towards Harlem";
                 } else {
+                    cancel();
                     return;
                 }
                 $.ajax({
@@ -466,6 +492,9 @@
                     location = "baker";
                 } else if (prevAction.actionType == "menu") {
                     location = prevAction.actionData.location;
+                } else {
+                    cancel();
+                    return;
                 }
                 let period = "";
                 if (query.includes("dinner")) {
@@ -474,6 +503,9 @@
                     period = "lunch";
                 } else if (prevAction.actionType == "menu") {
                     period = prevAction.actionData.period;
+                } else {
+                    cancel();
+                    return;
                 }
                 prevAction.actionData = {
                     "location": location,
@@ -525,7 +557,11 @@
                     clearInterval(alarmState.flash);
                     alarmState.sound.pause();
                     alarmState.dark = true;
-                    changeColor(porcupineActivated ? "cornflowerblue" : "rgb(100, 100, 100)", false);
+                    if (playReport) {
+                        morningReport();
+                    } else {
+                        changeColor(porcupineActivated ? "cornflowerblue" : "rgb(100, 100, 100)", false);
+                    }
                 }
             }
         </script>
