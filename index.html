@@ -81,7 +81,7 @@
             const synth = window.speechSynthesis;
             function speakText(text) {
                 const utterThis = new SpeechSynthesisUtterance(text);
-                utterThis.rate = 1.2;
+                utterThis.rate = 1;
                 utterThis.addEventListener("end", () => {
                     setTimeout(() => {
                         changeColor("cornflowerblue", true);
@@ -244,7 +244,7 @@
                         const categories = data.menu.periods.categories;
                         categories.forEach(category => {
                             if (stations[location].includes(category.name)) {
-                                output.push(`The ${category.name} station has ${category.items.slice(0, 4).map((item, i) => i == category.items.length - 1 ? 'and ' + item.name : item.name).join(', ')}.`);
+                                output.push(`The ${category.name} station has ${category.items.slice(0, 4).map((item, i) => i == min(category.items.length - 1, 3) ? 'and ' + item.name : item.name).join(', ')}.`);
                             }
                         });
                         speakText(output.join(" "));
