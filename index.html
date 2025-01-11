@@ -104,7 +104,7 @@
                     action: ctaTrain
                 },
                 "cta_bus": {
-                    hotwords: ["eastbound", "westbound", "59"],
+                    hotwords: ["eastbound", "westbound", "59", "171", "172"],
                     action: ctaBus
                 }
             }
@@ -152,6 +152,14 @@
                     stpid = "13030";
                     rt = "59";
                     service = "westbound 59";
+                } else if (query.includes("171")) {
+                    stpid = "14020";
+                    rt = "171";
+                    service = "171";
+                } else if (query.includes("172")) {
+                    stpid = "14020";
+                    rt = "172";
+                    service = "172";
                 }
                 $.ajax({
                     url: `https://www.ctabustracker.com/bustime/api/v2/getpredictions?key=${busKey}&rt=${rt}&stpid=${stpid}`
