@@ -115,6 +115,29 @@
                 }, 200);
             }
 
+            let alarms = [];
+            let alarmState = {
+                dark: false
+            };
+            function soundAlarm() {
+                state = "alarm";
+                alarmState.flash = setInterval(() => {
+                    if (alarmState.dark) {
+                        changeColor("darkred", false);
+                    } else {
+                        changeColor("lightred", false);
+                    }
+                    dark = !dark;
+                }, 2000);
+                const alarmSound = new Audio("radar_ios_7.mp3");
+                audio.play();
+                audio.addEventListener("ended", () => {
+                    if (state == "alarm") {
+                        audio.play();
+                    }
+                });
+            }
+
             function ctaBus(query) {
                 const busKey = localStorage.getItem("busKey");
                 let stpid = "", rt = "", service = "";
@@ -361,7 +384,14 @@
 
             let state = "inactive";
             function handleClick() {
-                startPorcupine();
+                if (state == "inactive") {
+                    state = "active";
+                    startPorcupine();
+                } else if (state == "alarm") {
+                    state = "active";
+                    clearInterval(alarmState.flash);
+                    changeColor("cornflowerblue", false);
+                }
             }
         </script>
     </body>
