@@ -112,29 +112,29 @@
             }
 
             function ctaTrain(query) {
-                // const trainKey = localStorage.getItem("trainKey");
-                // let stpid = "", service = "";
-                // if (query.includes("red")) {
-                //     stpid = "30223";
-                //     service = "Garfield Red Line towards Howard";
-                // } else if (query.inclues("green") && query.includes("garfield")) {
-                //     stpid = "30099";
-                //     service = "Garfield Green Line towards Harlem";
-                // } else if (query.includes("green")) {
-                //     stpid = "30140";
-                //     service = "Cottage Grove Green Line towards Harlem";
-                // } else {
-                //     return;
-                // }
-                // $.ajax({
-                //     url: `https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=${trainKey}&stpid=${stpid}`
-                // }).done(data => {
-                //     const arrivals = [];
-                //     $(data).find("eta").each(function() {
-                //         const arrT = $(this).find("arrT").text();
-                //         const arrDate = new Date(arrT.substring(0, 4),);
-                //     });
-                // });
+                const trainKey = localStorage.getItem("trainKey");
+                let stpid = "", service = "";
+                if (query.includes("red")) {
+                    stpid = "30223";
+                    service = "Garfield Red Line towards Howard";
+                } else if (query.inclues("green") && query.includes("garfield")) {
+                    stpid = "30099";
+                    service = "Garfield Green Line towards Harlem";
+                } else if (query.includes("green")) {
+                    stpid = "30140";
+                    service = "Cottage Grove Green Line towards Harlem";
+                } else {
+                    return;
+                }
+                $.ajax({
+                    url: `https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=${trainKey}&stpid=${stpid}`
+                }).done(data => {
+                    const arrivals = [];
+                    $(data).find("eta").each(function() {
+                        const arrT = $(this).find("arrT").text();
+                        const arrDate = new Date(arrT.substring(0, 4),);
+                    });
+                });
             }
 
             function foodMenu(query) {
@@ -179,6 +179,8 @@
                 let period = "";
                 if (query.includes("dinner")) {
                     period = "dinner";
+                else if (query.includes("lunch")) {
+                    period = "lunch";
                 } else if (prevAction.actionType == "menu") {
                     period = prevAction.actionData.period;
                 }
