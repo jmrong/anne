@@ -151,7 +151,7 @@
             function setAlarm(query) {
                 if (query.includes("cancel")) {
                     for (let alarm in alarms) {
-                        cancelTimeout(alarms[alarm].timeout);
+                        clearTimeout(alarms[alarm].timeout);
                     }
                     alarms = [];
                     localStorage.setItem("alarms", "[]");
