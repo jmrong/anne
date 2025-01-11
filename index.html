@@ -18,5 +18,35 @@
     </head>
     <body>
         <div id = "big"></div>
+        <script
+  src="https://code.jquery.com/jquery-3.7.1.js"
+  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+  crossorigin="anonymous"></script>
+        <script src="@picovoice/web-voice-processor/dist/iife/index.js"></script>
+        <script src="@picovoice/porcupine-web/dist/iife/index.js"></script>
+        <script>
+            const apiKey = localStorage.getItem("apiKey");
+            (async () => {
+                const keywordModel = {
+                    publicPath: "Hey-there-Anne_en_wasm_v3_0_0.ppn",
+                    label: "hey_there_anne",
+                }
+
+                function keywordDetectionCallback(detection) {
+                    console.log(`Porcupine detected keyword index: ${detection.label}`);
+                }
+
+                const porcupine = await PorcupineWeb.PorcupineWorker.create(
+                apiKey,
+                [keywordModel],
+                keywordDetectionCallback,
+                {
+                    publicPath: "porcupine_params.pv"
+                }
+                );
+
+                await window.WebVoiceProcessor.WebVoiceProcessor.subscribe(porcupine);
+            })();
+        </script>
     </body>
 </html>
