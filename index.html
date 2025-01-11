@@ -158,6 +158,7 @@
                     speakText("Got it, I've canceled your alarms.");
                     return;
                 }
+                query = query.replaceAll(" an ", "one").replaceAll(" a ", "one");
                 breakdown = query.split(" ");
                 let target;
                 if (query.includes("hour") || query.includes("minute")) {
