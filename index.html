@@ -286,9 +286,9 @@
                     url: "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Hyde_Park,_IL/next10days?unitGroup=metric&iconSet=icons2&key=KSFBRZP7W6LGZFHHCHTP9DZL8"
                 }).done(data => {
                     function parseTemp(input) {
-                        return input < 0 ? 'negative ' + Math.round(input * -1).toString() : Math.round(input).toString();
+                        return input < 0 ? 'minus ' + Math.round(input * -1).toString() : Math.round(input).toString();
                     }
-                    speakText(`Good morning, Jack. It is ${parseTemp(data.days[0].temp)} degrees right now. The low is ${parseTemp(data.days[0].tempmin)} and the high is ${parseTemp(data.days[0].tempmax)}. It feels like ${parseTemp(data.days[0].feelslike)}. ${data.days[0].description.slice(-1)}, with a ${data.days[0].precipprob} percent chance of rain.`, 0.9);
+                    speakText(`Good morning Jack. It is ${parseTemp(data.days[0].temp)} degrees right now. The low is ${parseTemp(data.days[0].tempmin)} and the high is ${parseTemp(data.days[0].tempmax)}. It feels like ${parseTemp(data.days[0].feelslike)}. ${data.days[0].description.slice(-1)}, with a ${data.days[0].precipprob} percent chance of rain. Have a great day!`, 0.9);
                 });
             }
 
@@ -565,7 +565,8 @@
                     alarmState.sound.pause();
                     alarmState.dark = true;
                     if (playReport) {
-                        morningReport();
+                        changeColor("goldenrod", true);
+                        setTimeout(morningReport, 1000);
                     } else {
                         changeColor(porcupineActivated ? "cornflowerblue" : "rgb(100, 100, 100)", false);
                     }
