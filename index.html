@@ -169,7 +169,7 @@
                     if (query.includes("minutes")) {
                         minute = Number(breakdown[breakdown.indexOf("minutes") - 1]);
                     }
-                    target = new Date(Date.now() + (hour / 60 / 60 / 1000) + (minute / 60 / 1000));
+                    target = new Date(Date.now() + (hour * 60 * 60 * 1000) + (minute * 60 * 1000));
                 } else if (query.includes("alarm") || query.includes("wake")) {
                     let time;
                     try {
