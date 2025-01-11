@@ -161,7 +161,7 @@
                             arrDesc = "in " + minDiff + " minutes";
                         }
                         output.push(`Another bus is arriving ${arrDesc}.`);
-                    } else if (arrivals.length == 3) {
+                    } else if (arrivals.length >= 3) {
                         const minDiff2 = Math.round((((arrivals[1].arrDate - now) % 86400000) % 3600000) / 60000);
                         let arrDesc2 = "";
                         if (minDiff2 == 0) {
@@ -181,7 +181,7 @@
                             arrDesc3 = "in " + minDiff + " minutes";
                         }
                         output.push(`More buses are arriving ${arrDesc2} and ${arrDesc3}.`);
-                    } else {
+                    } else if (arrivals.length == 0) {
                         output.push(`Unfortunately, there are no arrival times for the ${service} right now.`);
                     }
                     speakText(output.join(" "));
