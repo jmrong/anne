@@ -132,7 +132,7 @@
                     const arrivals = [];
                     $(data).find("eta").each(function() {
                         const arrT = $(this).find("arrT").text();
-                        const arrDate = new Date(arrT.substring(0, 4),);
+                        const arrDate = new Date(Number(arrT.substring(0, 4)), Number(arrT.substring(4, 6), ));
                     });
                 });
             }
@@ -174,7 +174,7 @@
                 } else if (query.includes("woodlawn")) {
                     location = "woodlawn";
                 } else if (prevAction.actionType == "menu") {
-                    period = prevAction.actionData.location;
+                    location = prevAction.actionData.location;
                 }
                 let period = "";
                 if (query.includes("dinner")) {
@@ -201,9 +201,11 @@
                         });
                         speakText(output);
                     } catch (error) {
+                        console.log(error);
                         speakText(`Unfortunately, I was unable to get the menu for ${period} at ${location}.`);
                     }
-                }).catch(() => {
+                }).catch((error) => {
+                    console.log(error);
                     speakText(`Unfortunately, I was unable to get the menu for ${period} at ${location}.`);
                 })
             }
