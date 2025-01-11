@@ -108,8 +108,12 @@
                     action: ctaBus
                 },
                 "divvy": {
-                    hotwords: ["bike"],
+                    hotwords: ["bike", "bookstore", "regenstein", "ratner", "53rd", "55th", "booth"],
                     action: checkBikes
+                },
+                "alarm": {
+                    hotwords: ["timer", "alarm", "wake", "bed"],
+                    action: setAlarm
                 }
             }
 
@@ -117,6 +121,68 @@
                 setTimeout(() => {
                     speakText("Hello, Grace!");
                 }, 200);
+            }
+
+            function setAlarm(query) {
+                breakdown = query.split(" ");
+                let target;
+                if (query.includes("timer")) {
+                    let hour = 0, minute = 0;
+                    if (query.includes("hour")) {
+                        hour = 1;
+                    }
+                    if (query.includes("hours")) {
+                        hour = Number(breakdown[breakdown.indexOf("hours") - 1]);
+                    }
+                    if (query.includes("minutes")) {
+                        minute = Number(breakdown[breakdown.indexOf("minutes") - 1]);
+                    }
+                    target = new Date(Date.now() + (hour / 60 / 60 / 1000) + (minute / 60 / 1000));
+                } else if (query.includes("alarm") || query.includes("wake")) {
+                    let time = breakdown[breakdown.indexOf(query.includes("a.m.") ? "a.m." : "p.m.") - 1].split(":").map(x => Number(x));
+                    if (time[0] == 12) {
+                        time[0] = 0;
+                    }
+                    if (query.includes("p.m")) {
+                        time[0] += 12;
+                    }
+                    const now = new Date();
+                    if (now.getHours() > time[0] || (now.getHours() == time[0] && now.getMinutes() > time[1])) {
+                        target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, time[0], time[1]);
+                    } else {
+                        target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, time[0], time[1]);
+                    }
+                }
+                alarms.push({ target: target.getTime(), report: query.includes("bed") });
+                setTimeout(() => {
+                    soundAlarm(target.getTime());
+                }, target.getTime() - Date.now());
+                function formatAMPM(date) {
+                    var hours = date.getHours();
+                    var minutes = date.getMinutes();
+                    var ampm = hours >= 12 ? 'p.m.' : 'a.m.';
+                    hours = hours % 12;
+                    hours = hours ? hours : 12;
+                    minutes = minutes < 10 ? '0'+minutes : minutes;
+                    var strTime = hours + ':' + minutes + ' ' + ampm;
+                    return strTime;
+                }
+                speakText(`I've set an alarm for ${formatAMPM(target)}.`);
+                localStorage.setItem("alarms", JSON.stringify(alarms));
+            }
+            let alarms = [];
+            let alarmState = {
+                flash: null,
+                dark: true,
+                sound: null
+            };
+            if (localStorage.getItem("alarms")) {
+                alarms = JSON.parse(localStorage.getItem("alarms"));
+                for (let alarm in alarms) {
+                    setTimeout(() => {
+                        soundAlarm(alarm.target);
+                    }, alarm.target - Date.now());
+                }
             }
 
             function checkBikes(query) {
@@ -127,7 +193,8 @@
                     "booth": "1850867138125484782",
                     "cottage grove": "a3ad95a7-a135-11e9-9cda-0a87ae2ba916",
                     "53rd": "a3aaa17b-a135-11e9-9cda-0a87ae2ba916",
-                    "55th": "a3a89488-a135-11e9-9cda-0a87ae2ba916"
+                    "55th": "a3a89488-a135-11e9-9cda-0a87ae2ba916",
+                    "ratner": "a3ad711d-a135-11e9-9cda-0a87ae2ba916"
                 }
                 for (let stationName in stationIds) {
                     if (query.includes(stationName)) {
@@ -167,30 +234,27 @@
                 });
             }
 
-            let alarms = [];
-            let alarmState = {
-                flash: null,
-                dark: true,
-                sound: null
-            };
-            function soundAlarm() {
-                state = "alarm";
-                changeColor("darkred", false);
-                alarmState.flash = setInterval(() => {
-                    if (alarmState.dark) {
-                        changeColor("red", false);
-                    } else {
-                        changeColor("darkred", false);
-                    }
-                    alarmState.dark = !alarmState.dark;
-                }, 1000);
-                alarmState.sound = new Audio("radar_ios_7.mp3");
-                alarmState.sound.play();
-                alarmState.sound.addEventListener("ended", () => {
-                    if (state == "alarm") {
-                        alarmState.sound.play();
-                    }
-                });
+            function soundAlarm(time) {
+                alarms = alarms.filter(x => x.target != time);
+                if (state != "alarm") {
+                    state = "alarm";
+                    changeColor("darkred", false);
+                    alarmState.flash = setInterval(() => {
+                        if (alarmState.dark) {
+                            changeColor("red", false);
+                        } else {
+                            changeColor("darkred", false);
+                        }
+                        alarmState.dark = !alarmState.dark;
+                    }, 1000);
+                    alarmState.sound = new Audio("radar_ios_7.mp3");
+                    alarmState.sound.play();
+                    alarmState.sound.addEventListener("ended", () => {
+                        if (state == "alarm") {
+                            alarmState.sound.play();
+                        }
+                    });
+                }
             }
 
             function ctaBus(query) {
