@@ -38,6 +38,7 @@
             }
 
             const apiKey = localStorage.getItem("apiKey");
+            let porcupineActivated = false;
             async function startPorcupine() {
                 changeColor("cornflowerblue", false);
 
@@ -61,6 +62,7 @@
                 );
 
                 await window.WebVoiceProcessor.WebVoiceProcessor.subscribe(porcupine);
+                porcupineActivated = true;
             }
 
             const recognitionSvc = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -153,10 +155,11 @@
                         target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, time[0], time[1]);
                     }
                 }
-                alarms.push({ target: target.getTime(), report: query.includes("bed") });
-                setTimeout(() => {
+                const alarm = { target: target.getTime(), report: query.includes("bed"), timeout: null };
+                alarm.timeout = setTimeout(() => {
                     soundAlarm(target.getTime());
                 }, target.getTime() - Date.now());
+                alarms.push(alarm);
                 function formatAMPM(date) {
                     var hours = date.getHours();
                     var minutes = date.getMinutes();
@@ -236,6 +239,7 @@
 
             function soundAlarm(time) {
                 alarms = alarms.filter(x => x.target != time);
+                localStorage.setItem("alarms", JSON.stringify(alarms));
                 if (state != "alarm") {
                     state = "alarm";
                     changeColor("darkred", false);
@@ -515,11 +519,11 @@
                     state = "active";
                     startPorcupine();
                 } else if (state == "alarm") {
-                    state = "active";
+                    state = porcupineActivated ? "active" : "inactive";
                     clearInterval(alarmState.flash);
                     alarmState.sound.pause();
                     alarmState.dark = true;
-                    changeColor("cornflowerblue", false);
+                    changeColor(porcupineActivated ? "cornflowerblue" : "rgb(100, 100, 100)", false);
                 }
             }
         </script>
