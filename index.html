@@ -126,12 +126,12 @@
                 changeColor("darkred", false);
                 alarmState.flash = setInterval(() => {
                     if (alarmState.dark) {
-                        changeColor("darkred", false);
+                        changeColor("red", false);
                     } else {
-                        changeColor("lightred", false);
+                        changeColor("darkred", false);
                     }
                     alarmState.dark = !alarmState.dark;
-                }, 2000);
+                }, 1000);
                 alarmState.sound = new Audio("radar_ios_7.mp3");
                 alarmState.sound.play();
                 alarmState.sound.addEventListener("ended", () => {
@@ -393,7 +393,7 @@
                 } else if (state == "alarm") {
                     state = "active";
                     clearInterval(alarmState.flash);
-                    alarmState.sound.stop();
+                    alarmState.sound.pause();
                     alarmState.dark = true;
                     changeColor("cornflowerblue", false);
                 }
