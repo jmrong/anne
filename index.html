@@ -117,7 +117,9 @@
 
             let alarms = [];
             let alarmState = {
-                dark: false
+                flash: null,
+                dark: false,
+                sound: null
             };
             function soundAlarm() {
                 state = "alarm";
@@ -129,11 +131,11 @@
                     }
                     dark = !dark;
                 }, 2000);
-                const alarmSound = new Audio("radar_ios_7.mp3");
-                audio.play();
-                audio.addEventListener("ended", () => {
+                alarmState.sound = new Audio("radar_ios_7.mp3");
+                alarmState.sound.play();
+                alarmState.sound.addEventListener("ended", () => {
                     if (state == "alarm") {
-                        audio.play();
+                        alarmState.sound.play();
                     }
                 });
             }
