@@ -29,11 +29,18 @@
         <script src="@picovoice/porcupine-web/dist/iife/index.js"></script>
         <script>
             function changeColor(color, fade) {
+                if (fade) {
+                    $("#big").css("transition", "background-color 0.5s");
+                } else {
+                    $("#big").css("transition", "");
+                }
                 $("#big").css("background-color", color);
             }
 
             const apiKey = localStorage.getItem("apiKey");
             async function startPorcupine() {
+                changeColor("cornflowerblue", false);
+
                 const keywordModel = {
                     publicPath: "Hey-there-Anne_en_wasm_v3_0_0.ppn",
                     label: "hey_there_anne",
@@ -41,6 +48,7 @@
 
                 function keywordDetectionCallback(detection) {
                     console.log(`Porcupine detected keyword index: ${detection.label}`);
+                    startListening();
                 }
 
                 const porcupine = await PorcupineWeb.PorcupineWorker.create(
@@ -53,9 +61,22 @@
                 );
 
                 await window.WebVoiceProcessor.WebVoiceProcessor.subscribe(porcupine);
-
-                changeColor("cornflowerblue", false);
             }
+
+            const recognitionSvc = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new recognitionSvc();
+            recognition.lang = 'en-US';
+            function startListening() {
+                changeColor("aqua", true);
+
+                recognition.start();
+                recognition.onresult = (event) => { 
+                for (const result of event.results) {
+                        console.log(`${result[0].transcript}`);
+                    }
+                }
+            }
+
             let state = "inactive";
             function handleClick() {
                 startPorcupine();
