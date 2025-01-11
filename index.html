@@ -71,9 +71,23 @@
 
                 recognition.start();
                 recognition.onresult = (event) => { 
-                for (const result of event.results) {
+                    for (const result of event.results) {
                         console.log(`${result[0].transcript}`);
                     }
+                }
+            }
+
+            const synth = window.speechSynthesis;
+            function speakText(text) {
+                const utterThis = new SpeechSynthesisUtterance(text);
+                utterThis.addEventListener("end", () => {
+                    changeColor("cornflowerblue", true);
+                });
+                synth.speak(utterThis);
+            }
+            function processQuery(result) {
+                if (result.indexOf("hi") != -1 && result.indexOf("girlfriend") != -1) {
+                    speakText("Hello, Grace!");
                 }
             }
 
