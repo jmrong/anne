@@ -28,6 +28,12 @@
         <script src="@picovoice/web-voice-processor/dist/iife/index.js"></script>
         <script src="@picovoice/porcupine-web/dist/iife/index.js"></script>
         <script>
+            try {
+                const wakeLock = await navigator.wakeLock.request("screen");
+            } catch (err) {
+                console.log(`${err.name}, ${err.message}`);
+            }
+
             function changeColor(color, fade) {
                 if (fade) {
                     $("#big").css("transition", "background-color 0.75s");
