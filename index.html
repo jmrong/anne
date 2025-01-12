@@ -29,7 +29,7 @@
         <script src="@picovoice/porcupine-web/dist/iife/index.js"></script>
         <script>
             try {
-                const wakeLock = await navigator.wakeLock.request("screen");
+                const wakeLock = navigator.wakeLock.request("screen");
             } catch (err) {
                 console.log(`${err.name}, ${err.message}`);
             }
