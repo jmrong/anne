@@ -22,7 +22,7 @@
             }
             #clock {
                 display: inline-block;
-                font-size: 256px;
+                font-size: 200px;
                 color: black;
                 font-family: "Roboto", sans-serif;
             }
@@ -31,7 +31,6 @@
     <body>
         <div id = "big" onclick = "handleClick()">
             <span id = "clock">
-                09:41:00
             </span>
         </div>
         <script
@@ -42,7 +41,7 @@
         <script src="@picovoice/porcupine-web/dist/iife/index.js"></script>
         <script>
             let rightNow = new Date();
-            function updateTime() {
+            function updateTime(first=false) {
                 rightNow = new Date();
                 let nowHour = rightNow.getHours();
                 if (nowHour > 12) {
@@ -52,8 +51,11 @@
                     nowHour = 12;
                 }
                 $("#clock").html(`${nowHour < 10 ? '0' + nowHour : nowHour}:${rightNow.getMinutes() < 10 ? '0' + rightNow.getMinutes() : rightNow.getMinutes()}:${rightNow.getSeconds() < 10 ? '0' + rightNow.getSeconds() : rightNow.getSeconds()}`);
+                if (!first) {
+                    setTimeout(updateTime, 1000);
+                }
             }
-            updateTime();
+            updateTime(true);
             setTimeout(updateTime, 1000 - rightNow.getMilliseconds());
 
             try {
