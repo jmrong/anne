@@ -22,7 +22,7 @@
             }
             #clock {
                 display: inline-block;
-                font-size: 72px;
+                font-size: 256px;
                 color: black;
                 font-family: "Roboto";
             }
@@ -41,6 +41,21 @@
         <script src="@picovoice/web-voice-processor/dist/iife/index.js"></script>
         <script src="@picovoice/porcupine-web/dist/iife/index.js"></script>
         <script>
+            let rightNow = new Date();
+            function updateTime() {
+                rightNow = new Date();
+                let nowHour = rightNow.getHours();
+                if (nowHour > 12) {
+                    nowHour -= 12;
+                }
+                if (nowHour == 0) {
+                    nowHour = 12;
+                }
+                $("#clock").html(`${nowHour < 10 ? '0' + nowHour : nowHour}:${rightNow.getMinutes() < 10 ? '0' + rightNow.getMinutes() : rightNow.getMinutes()}:${rightNow.getSeconds() < 10 ? '0' + rightNow.getSeconds() : rightNow.getSeconds()}`);
+            }
+            updateTime();
+            setTimeout(updateTime, 1000 - rightNow.getMilliseconds());
+
             try {
                 const wakeLock = navigator.wakeLock.request("screen");
             } catch (err) {
