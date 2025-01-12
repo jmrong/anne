@@ -121,7 +121,7 @@
                 const utterThis = new SpeechSynthesisUtterance(text);
                 utterThis.rate = rate;
                 utterThis.addEventListener("end", () => {
-                    const stillGoing = false;
+                    let stillGoing = false;
                     recognition.start();
                     recognition.onspeechstart = () => {
                         stillGoing = true;
@@ -172,7 +172,7 @@
                 },
                 "finish": {
                     hotwords: ["thank you"],
-                    action: () => {}
+                    action: () => { setTimeout(() => { changeColor("cornflowerblue", true) }, 200) }
                 }
             }
 
