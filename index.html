@@ -194,7 +194,8 @@
                 }, 200);
             }
 
-            function cancel() {
+            async function cancel() {
+                await resumePorcupine();
                 changeColor("cornflowerblue", true);
             }
 
