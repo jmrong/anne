@@ -77,6 +77,8 @@
             let porcupineActivated = false;
             let porcupine;
             async function resumePorcupine() {
+                recognition.abort();
+
                 const keywordModel = {
                     publicPath: "Hey-there-Anne_en_wasm_v3_0_0.ppn",
                     label: "hey_there_anne",
@@ -141,7 +143,6 @@
                     }
                     setTimeout(async () => {
                         if (!stillGoing) {
-                            recognition.abort();
                             await resumePorcupine();
                             changeColor("cornflowerblue", true);
                         }
@@ -538,6 +539,9 @@
                             arrDesc = "in " + minDiff + " minutes";
                         }
                         output.push(`The ${service} is ${arrivals[0].sched ? 'scheduled to depart' : 'departing'} ${arrDesc}.`);
+                    } else {
+                        speakText(`There are no upcoming departures for the ${service}.`);
+                        return;
                     }
                     if (arrivals.length == 2) {
                         const minDiff = Math.round((((arrivals[1].arrDate - now) % 86400000) % 3600000) / 60000);
@@ -550,7 +554,7 @@
                             arrDesc = "in " + minDiff + " minutes";
                         }
                         output.push(`Another train is ${arrivals[1].sched ? 'scheduled to depart' : 'departing'} ${arrDesc}.`);
-                    } else {
+                    } else if (arrivals.length > 2) {
                         const minDiff2 = Math.round((((arrivals[1].arrDate - now) % 86400000) % 3600000) / 60000);
                         let arrDesc2 = "";
                         if (minDiff2 == 0) {
@@ -673,6 +677,7 @@
                         }
                     }
                 }
+                resumePorcupine();
                 changeColor("cornflowerblue", true);
             }
 
