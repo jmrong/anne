@@ -352,7 +352,7 @@
                     function parseTemp(input) {
                         return input < 0 ? 'minus ' + Math.round(input * -1).toString() : Math.round(input).toString();
                     }
-                    speakText(`Good morning Jack. It is ${parseTemp(data.days[0].temp)} degrees right now. The low is ${parseTemp(data.days[0].tempmin)} and the high is ${parseTemp(data.days[0].tempmax)}. It feels like ${parseTemp(data.days[0].feelslike)}. ${data.days[0].description.slice(-1)}, with a ${data.days[0].precipprob} percent chance of rain. Have a great day!`, 0.9);
+                    speakText(`Good morning Jack. It is ${parseTemp(data.days[0].temp)} degrees right now. The low is ${parseTemp(data.days[0].tempmin)} and the high is ${parseTemp(data.days[0].tempmax)}. It feels like ${parseTemp(data.days[0].feelslike)}. ${data.days[0].description.slice(0, -1)}, with a ${data.days[0].precipprob} percent chance of rain. Have a great day!`, 0.9);
                 });
             }
 
