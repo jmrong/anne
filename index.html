@@ -173,6 +173,10 @@
                 "finish": {
                     hotwords: ["thank you"],
                     action: () => { setTimeout(() => { changeColor("cornflowerblue", true) }, 200) }
+                },
+                "weather": {
+                    hotwords: ["weather"],
+                    action: getWeather
                 }
             }
 
@@ -184,6 +188,32 @@
 
             function cancel() {
                 changeColor("cornflowerblue", true);
+            }
+
+            function getWeather(query) {
+                $.ajax({
+                    url: "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Hyde_Park,_IL/next10days?unitGroup=metric&iconSet=icons2&key=KSFBRZP7W6LGZFHHCHTP9DZL8"
+                }).done(data => {
+                    function parseTemp(input) {
+                        return input < 0 ? 'minus ' + Math.round(input * -1).toString() : Math.round(input).toString();
+                    }
+                    try {
+                        if (query.includes("today")) {
+                            speakText(`Today, the low is ${parseTemp(data.days[0].tempmin)} and the high is ${parseTemp(data.days[0].tempmax)}. Right now it is ${parseTemp(data.currentConditions.temp)}, and it feels like ${parseTemp(data.currentConditions.feelslike)}. ${data.days[0].description.slice(0, -1)}, with a ${data.days[0].precipprob} percent chance of rain.`, 0.9);
+                        } else if (query.includes("tomorrow")) {
+                            speakText(`Tomorrow, the low is ${parseTemp(data.days[1].tempmin)} and the high is ${parseTemp(data.days[1].tempmax)}. It will feel like ${parseTemp(data.days[1].feelslike)}. ${data.days[1].description.slice(0, -1)}, with a ${data.days[1].precipprob} percent chance of rain.`, 0.9);
+                        } else {
+                            cancel();
+                            return;
+                        }
+                    } catch (error) {
+                        console.log(error);
+                        speakText("Unfortunately, I couldn't get that data.");
+                    }
+                }).catch(error => {
+                    console.log(error);
+                    speakText("Unfortunately, I couldn't get that data.");
+               });
             }
 
             function checkContacts(query) {
@@ -369,7 +399,7 @@
                     function parseTemp(input) {
                         return input < 0 ? 'minus ' + Math.round(input * -1).toString() : Math.round(input).toString();
                     }
-                    speakText(`Good morning Jack. It is ${parseTemp(data.days[0].temp)} degrees right now. The low is ${parseTemp(data.days[0].tempmin)} and the high is ${parseTemp(data.days[0].tempmax)}. It feels like ${parseTemp(data.days[0].feelslike)}. ${data.days[0].description.slice(0, -1)}, with a ${data.days[0].precipprob} percent chance of rain. Have a great day!`, 0.9);
+                    speakText(`Good morning Jack. It is ${parseTemp(data.currentConditions.temp)} degrees right now. The low is ${parseTemp(data.days[0].tempmin)} and the high is ${parseTemp(data.days[0].tempmax)}. It feels like ${parseTemp(data.currentConditions.feelslike)}. ${data.days[0].description.slice(0, -1)}, with a ${data.days[0].precipprob} percent chance of rain. Have a great day!`, 0.9);
                 });
             }
 
