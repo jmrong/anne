@@ -75,6 +75,7 @@
 
             const apiKey = localStorage.getItem("apiKey");
             let porcupineActivated = false;
+            let porcupine;
             async function startPorcupine() {
                 changeColor("cornflowerblue", false);
 
@@ -88,7 +89,7 @@
                     startListening();
                 }
 
-                const porcupine = await PorcupineWeb.PorcupineWorker.create(
+                porcupine = await PorcupineWeb.PorcupineWorker.create(
                     apiKey,
                     [keywordModel],
                     keywordDetectionCallback,
@@ -104,7 +105,8 @@
             const recognitionSvc = window.SpeechRecognition || window.webkitSpeechRecognition;
             const recognition = new recognitionSvc();
             recognition.lang = 'en-US';
-            function startListening() {
+            async function startListening() {
+                await window.WebVoiceProcessor.WebVoiceProcessor.unsubscribe(porcupine);
                 changeColor("aqua", true);
 
                 recognition.start();
@@ -132,9 +134,10 @@
                             processQuery(result[0].transcript.toLowerCase());
                         }
                     }
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         if (!stillGoing) {
                             changeColor("cornflowerblue", true);
+                            await window.WebVoiceProcessor.WebVoiceProcessor.subscribe(porcupine);
                         }
                     }, 3000);
                 });
@@ -172,7 +175,7 @@
                 },
                 "finish": {
                     hotwords: ["thank you"],
-                    action: () => { setTimeout(() => { changeColor("cornflowerblue", true) }, 200) }
+                    action: () => { setTimeout(async () => { await window.WebVoiceProcessor.WebVoiceProcessor.subscribe(porcupine); changeColor("cornflowerblue", true) }, 200) }
                 },
                 "weather": {
                     hotwords: ["weather"],
