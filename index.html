@@ -76,9 +76,7 @@
             const apiKey = localStorage.getItem("apiKey");
             let porcupineActivated = false;
             let porcupine;
-            async function startPorcupine() {
-                changeColor("cornflowerblue", false);
-
+            async function resumePorcupine() {
                 const keywordModel = {
                     publicPath: "Hey-there-Anne_en_wasm_v3_0_0.ppn",
                     label: "hey_there_anne",
@@ -99,6 +97,11 @@
                 );
 
                 await window.WebVoiceProcessor.WebVoiceProcessor.subscribe(porcupine);
+            }
+            async function startPorcupine() {
+                changeColor("cornflowerblue", false);
+
+                await resumePorcupine();
                 porcupineActivated = true;
             }
 
@@ -107,6 +110,8 @@
             recognition.lang = 'en-US';
             async function startListening() {
                 await window.WebVoiceProcessor.WebVoiceProcessor.unsubscribe(porcupine);
+                porcupine.release();
+                porcupine.terminate();
                 changeColor("aqua", true);
 
                 recognition.start();
@@ -136,8 +141,8 @@
                     }
                     setTimeout(async () => {
                         if (!stillGoing) {
+                            await resumePorcupine();
                             changeColor("cornflowerblue", true);
-                            await window.WebVoiceProcessor.WebVoiceProcessor.subscribe(porcupine);
                         }
                     }, 3000);
                 });
@@ -175,7 +180,7 @@
                 },
                 "finish": {
                     hotwords: ["thank you"],
-                    action: () => { setTimeout(async () => { await window.WebVoiceProcessor.WebVoiceProcessor.subscribe(porcupine); changeColor("cornflowerblue", true) }, 200) }
+                    action: () => { setTimeout(async () => { await resumePorcupine(); changeColor("cornflowerblue", true) }, 200) }
                 },
                 "weather": {
                     hotwords: ["weather"],
