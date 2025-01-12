@@ -141,6 +141,7 @@
                     }
                     setTimeout(async () => {
                         if (!stillGoing) {
+                            recognition.abort();
                             await resumePorcupine();
                             changeColor("cornflowerblue", true);
                         }
