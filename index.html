@@ -694,6 +694,7 @@
                 }
                 if (synth.speaking) {
                     synth.cancel();
+                    resumePorcupine();
                     changeColor("cornflowerblue", false);
                 }
             }
