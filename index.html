@@ -121,9 +121,22 @@
                 const utterThis = new SpeechSynthesisUtterance(text);
                 utterThis.rate = rate;
                 utterThis.addEventListener("end", () => {
+                    const stillGoing = false;
+                    recognition.start();
+                    recognition.onspeechstart = () => {
+                        stillGoing = true;
+                    }
+                    recognition.onresult = (event) => { 
+                        for (const result of event.results) {
+                            console.log(`${result[0].transcript}`);
+                            processQuery(result[0].transcript.toLowerCase());
+                        }
+                    }
                     setTimeout(() => {
-                        changeColor("cornflowerblue", true);
-                    }, 200);
+                        if (!stillGoing) {
+                            changeColor("cornflowerblue", true);
+                        }
+                    }, 3000);
                 });
                 synth.speak(utterThis);
             }
@@ -156,6 +169,10 @@
                 "contacts": {
                     hotwords: ["contacts"],
                     action: checkContacts
+                },
+                "finish": {
+                    hotwords: ["thank you"],
+                    action: () => {}
                 }
             }
 
