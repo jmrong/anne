@@ -144,7 +144,7 @@
                     setTimeout(async () => {
                         if (!stillGoing) {
                             await resumePorcupine();
-                            changeColor("cornflowerblue", true);
+                            changeColor(activeColor, true);
                         }
                     }, 3000);
                 });
@@ -182,7 +182,7 @@
                 },
                 "finish": {
                     hotwords: ["thank you"],
-                    action: () => { setTimeout(async () => { await resumePorcupine(); changeColor("cornflowerblue", true) }, 200) }
+                    action: () => { setTimeout(async () => { await resumePorcupine(); changeColor(activeColor, true) }, 200) }
                 },
                 "weather": {
                     hotwords: ["weather"],
@@ -198,7 +198,7 @@
 
             async function cancel() {
                 await resumePorcupine();
-                changeColor("cornflowerblue", true);
+                changeColor(activeColor, true);
             }
 
             function getWeather(query) {
@@ -678,10 +678,11 @@
                     }
                 }
                 resumePorcupine();
-                changeColor("cornflowerblue", true);
+                changeColor(activeColor, true);
             }
 
             let state = "inactive";
+            let activeColor = "cornflowerblue";
             function handleClick() {
                 if (state == "inactive") {
                     state = "active";
@@ -695,13 +696,16 @@
                         changeColor("goldenrod", true);
                         setTimeout(morningReport, 1000);
                     } else {
-                        changeColor(porcupineActivated ? "cornflowerblue" : "rgb(100, 100, 100)", false);
+                        changeColor(porcupineActivated ? activeColor : "rgb(100, 100, 100)", false);
                     }
+                } else if (state == "active") {
+                    activeColor = (activeColor == "cornflowerblue" ? "black" : "cornflowerblue");
+                    changeColor(activeColor, true);
                 }
                 if (synth.speaking) {
                     synth.cancel();
                     resumePorcupine();
-                    changeColor("cornflowerblue", false);
+                    changeColor(activeColor, false);
                 }
             }
         </script>
